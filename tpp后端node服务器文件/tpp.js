@@ -1,4 +1,4 @@
-const request = require('request');
+	const request = require('request');
 	const http = require('http');
 	const qs = require('querystring');
 	const mysql = require('mysql');
@@ -9,15 +9,15 @@ const request = require('request');
 	const url = require('url');
 	const mainParms = {
 		session_time_out: 60, //session有效期(分钟)
-		host: "122.112.254.40", //您的主机域名
-		id: 1, //您的id
-		payurl: "wxp://f2f0CYCNxDDXkQOo9XHfOF9HiWiEyajgwsttCCYxjJRdZ_U", //您的收款二维码
+		host: "", //您的主机域名
+		id: 0, //您的id
+		payurl: "", //您的收款二维码
 		order_time_out: 5 //订单有效期
 	};
-	var connection = mysql.createConnection({
+	var connection = mysql.createConnection({//配置数据库信息
 		host: 'localhost',
 		user: 'root',
-		password: '740113',
+		password: '',
 		port: '3306',
 		database: 'tpp'
 	});
