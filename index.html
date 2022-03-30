@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+		<title>校际通支付</title>
+		<link href="css/bootstrap.min1.css" rel="stylesheet">
+		<script src="js/v2.6.10/vue.js" type="text/javascript" charset="utf-8"></script>
+		<link href="css/main.css" rel="stylesheet">
+		<link href="css/fontawesome-all.min.css" rel="stylesheet">
+		<link href="css/font-awesome.min.css" rel="stylesheet">
+		<script src="js/cookietool.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+	</head>
+	<body class="">
+		<div id="app">
+			<div id="header" class="homepagetwostyle d-flex mx-auto flex-column not-index-header">
+			<div class="header-animation">
+			         <div id="particles-bg"></div>
+					<span class="courve-gb-hdr-top"></span>
+			</div>
+			<!-- start main header section -->
+			<div class="top-header-nav-home mb-auto">
+			    <div class="container">
+			        <nav class="navbar navbar-expand-md navbar-light header-nav-algo-coodiv header-nav-algo-coodiv-v2">
+								<div class="collapse navbar-collapse navbar-offcanvas" id="offcanvas-menu-home">
+								    <ul class="navbar-nav ml-auto">
+								    	<li class="nav-item">
+								    		<a class="xy_back nav-link">作者:吴照勇</a>
+								    	</li>
+								    </ul>
+								</div>
+							</nav>
+						</div><!-- end container -->
+					</div><!-- end main header section -->
+			
+					<main class="inner cover header-heeadline-title mb-auto">
+						<!-- start main header text -->
+			
+						<h5><span class="blok-on-phon">独立开发者个人即时到账收款平台</span></h5>
+						<p>无需公司资质免签约，即时到账，个人微信支付宝账号即可收款，即开即用，高并发，超稳不漏单</p>
+			
+						<div class="container">
+							<nav aria-label="breadcrumb">
+								<ol class="breadcrumb not-index-breadcrumb-header justify-content-center">
+									<li class="breadcrumb-item">专业</li>
+									<li class="breadcrumb-item">稳定</li>
+									<li class="breadcrumb-item">售后</li>
+								</ol>
+							</nav>
+						</div>
+						<div>
+							<button type="button" class="btn btn-primary" @click="topage('login')">登录/注册</button>
+							<button type="button" class="btn btn-outline-primary" @click="topage('apidoc')">接入A P I</button>
+						</div>
+					</main><!-- end main header text -->
+					<div class="mt-auto"></div>
+				</div><!-- end header -->
+				<!--style="padding-top: 100px;padding-bottom: 40px;"-->
+				<section class="padding-100-0 gray-background">
+					<div class="container">
+						<h5 class="title-left-bold text-center">为什么选择我们？ <span>签约支付宝微信支付需要注册公司，注册公司维护成本太高，<br/>市面上各种收款工具要么手续费太高，要么到账很慢，体验很不好
+							</span>
+						</h5>
+			
+						<div class="row mr-tp-80">
+							<div class="col-md-4">
+								<div class="container-features-about-us">
+									<div class="features-about-us-number">
+										<div class="bulb-bllue-number">1</div>
+									</div>
+									<div class="features-about-us-text">
+										<h5>价格公道</h5>
+										<p>零费用开户，秒到个人账户，超低的手续费。</p>
+									</div>
+								</div>
+							</div>
+			
+							<div class="col-md-4">
+								<div class="container-features-about-us">
+									<div class="features-about-us-number">
+										<div class="bulb-bllue-number">2</div>
+									</div>
+									<div class="features-about-us-text">
+										<h5>无需提现</h5>
+										<p> 免签约支付，秒到个人账户</p>
+									</div>
+								</div>
+							</div>
+			
+			
+							<div class="col-md-4">
+								<div class="container-features-about-us">
+									<div class="features-about-us-number">
+										<div class="bulb-bllue-number">3</div>
+									</div>
+									<div class="features-about-us-text">
+										<h5>操作简单</h5>
+										<p>简约的UI交互体验可以给您一个体验度极高的商户后台，更好的下单体验</p>
+									</div>
+								</div>
+							</div>
+			
+			
+						</div>
+					</div>
+				</section>
+		</div>
+	
+		
+	</body>
+	<script>
+	
+	
+	var app = new Vue({
+	    el: "#app",
+	    data: {
+			username:null,
+			password:null,
+			invitation_code_up:null,
+			islogon:false,
+			host:''//您的主机域名
+	    },
+	    mounted() {
+	        var that = this;
+			
+			
+			
+	    },
+	    methods: {
+				topage(witch){
+					if(witch=="login"){
+						if(getCookie('session')){
+							$.ajax({
+								type: "get",
+								url: 'http://'+host+'/select_session?session='+getCookie("session"),
+								data: {},
+								success: function(res) {
+									if (res.code == 1) {
+										
+											window.location = "main.html";
+									} else {
+										window.location = "login.html";
+									}
+								}
+							});
+						}else{
+							
+								window.location = "login.html";
+						}
+					}else if(witch=="apidoc"){
+						window.location="apidoc.html";
+					}
+				
+				}
+	    }
+	
+	});
+	
+	</script>
+</html>

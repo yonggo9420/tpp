@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+	<head>
+		<meta charset="utf-8" />
+		<title>校际通第三方免签支付系统</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>
+		<script src="js/v2.6.10/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.7/index.js"></script>
+		<link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.7/theme-chalk/index.css" rel="stylesheet">
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+		<script src="js/cookietool.js"></script>
+		<link href="css/colorui.css" rel="stylesheet">
+	</head>
+	<body class="div1" style="background-color: #f5f7f9; height: 100%">
+		<div id="app">
+			<el-card style="width:auto;min-height: 800px;width: 400px;" shadow="hover">
+				<div style="text-align:center">
+
+					<div class=" padding-tb-sm radius ">
+						<h1 class="text-center text-bold text-lg margin-tb-sm">校际通</h1>
+					</div>
+					<el-divider></el-divider>
+					<el-alert v-if="userinfo.notifyurl==null" title="您还未设置异步通知接口，请前往设置，否则不能正常使用" type="warning"
+						show-icon></el-alert>
+					<el-alert v-if="userinfo.returnurl==null" title="您还未设置同步通知接口，请前往设置，否则不能正常使用" type="warning"
+						show-icon></el-alert>
+					<div class="padding-lr-sm padding-tb-xl margin-tb-sm radius" style="background-color: #EBEEF5;">
+						<el-row :gutter="20">
+							<el-col :span="6">
+								<el-card shadow="hover" body-style="padding: 10px;">
+									<div class="date-num">{{orderinfo.money.state1?orderinfo.money.state1:0}}</div>
+									<div class="date-title">总收入</div>
+								</el-card>
+							</el-col>
+							<el-col :span="6">
+								<el-card shadow="hover" body-style="padding: 10px;">
+									<div @click="go_orderlist(1)">
+										<div class="date-num">{{orderinfo.allnum}}</div>
+										<div class="date-title">订单总数</div>
+									</div>
+								</el-card>
+							</el-col>
+							<el-col :span="6">
+								<el-card shadow="hover" body-style="padding: 10px;">
+									<div @click="go_orderlist(2)">
+										<div class="date-num">{{orderinfo.state1}}</div>
+										<div class="date-title">成功订单</div>
+									</div>
+								</el-card>
+							</el-col>
+							<el-col :span="6">
+								<el-card shadow="hover" body-style="padding: 10px;">
+									<div @click="go_orderlist(3)">
+										<div class="date-num">{{orderinfo.state_1}}</div>
+										<div class="date-title">失败订单</div>
+									</div>
+								</el-card>
+							</el-col>
+						</el-row>
+					</div>
+					<div>
+						<el-descriptions class="margin-top" title="商户信息" :column="1" border>
+							<template slot="extra">
+								<el-dropdown>
+									<el-button size="small" round type="primary">
+										更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+									</el-button>
+									<el-dropdown-menu slot="dropdown" trigger="click">
+										<el-dropdown-item @click.native="update_userinfo_info_func()">修改信息
+										</el-dropdown-item>
+										<el-dropdown-item @click.native="recharge_price_dialog=true">余额充值
+										</el-dropdown-item>
+										<el-dropdown-item @click.native="update_password_dialog=true">修改密码
+										</el-dropdown-item>
+										<el-dropdown-item @click.native="reset_key_dialog=true">重置秘钥</el-dropdown-item>
+										<el-dropdown-item @click.native="to_apidoc">查看API文档</el-dropdown-item>
+										<el-dropdown-item @click.native="update_qr_dialog=true">上传收款码</el-dropdown-item>
+									</el-dropdown-menu>
+								</el-dropdown>
+							</template>
+							<el-descriptions-item>
+								<template slot="label">
+									用户名
+								</template>
+								{{userinfo.username}}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									商户ID
+								</template>
+								{{userinfo.id}}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									余额
+								</template>
+								{{userinfo.money}}元
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									费率
+								</template>
+								{{userinfo.rate}}.00%
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									商户等级
+								</template>
+								<el-tag size="small" v-if="userinfo.vip==0">普通版</el-tag>
+								<el-tag size="small" v-else-if="userinfo.vip==1">基础版</el-tag>
+								<el-tag size="small" v-else="userinfo.vip==2">高级版</el-tag>
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									商户密钥
+								</template>
+								{{userinfo.key}}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									配置数据
+								</template>
+								{{userinfo.host}}/{{userinfo.key}}/{{userinfo.id}}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									邀请码
+								</template>
+								{{userinfo.invitation_code}}
+							</el-descriptions-item>
+							<el-descriptions-item>
+								<template slot="label">
+									已在线
+								</template>
+								{{online_time}}分钟({{userinfo.session_time_out-online_time}}分钟后需要重新登录)
+							</el-descriptions-item>
+						</el-descriptions>
+
+					</div>
+				</div>
+			</el-card>
+			<el-dialog :visible.sync="update_userinfo_info_dialog" custom-class="update-userinfo-info-dialog"
+				:modal="false" width="400px" :show-close="false">
+				<div class=" padding-tb-sm radius ">
+					<h1 class="text-center text-bold text-lg margin-tb-sm">修改配置信息</h1>
+				</div>
+				<el-form label-position="top" ref="update_userinfo_info" label-width="80px"
+					:model="update_userinfo_info">
+					<el-form-item label="姓名">
+						<el-input v-model="update_userinfo_info.pname"></el-input>
+					</el-form-item>
+					<el-form-item label="QQ">
+						<el-input v-model="update_userinfo_info.qq"></el-input>
+					</el-form-item>
+					<el-form-item label="电话号码">
+						<el-input v-model="update_userinfo_info.phonenumber"></el-input>
+					</el-form-item>
+					<el-form-item label="异步通知接口(您的域名:端口号)" prop="notifyurl" :rules="[
+						       { required: true, message: '异步通知接口不能为空'}
+						     ]">
+						<el-input v-model="update_userinfo_info.notifyurl" placeholder="例如:127.0.0.1:80"></el-input>
+					</el-form-item>
+					<el-form-item label="同步跳转接口(您的域名:端口号)" prop="returnurl" :rules="[
+						       { required: true, message: '同步跳转接口不能为空'}
+						     ]">
+						<el-input v-model="update_userinfo_info.returnurl" placeholder="例如:127.0.0.1:8080"></el-input>
+					</el-form-item>
+					<el-form-item label="订单有效时间(分钟)" prop="order_time_out" :rules="[
+						        { required: true, message: '订单有效时间不能为空'},
+						        { type: 'number', message: '订单有效时间必须为整数'}
+						      ]">
+						<el-input v-model.number="update_userinfo_info.order_time_out"></el-input>
+					</el-form-item>
+					<el-form-item>
+						<div style="width: 100%;display: flex;justify-content: center;">
+							<el-button type="primary" @click="userinfo_submit('update_userinfo_info')">保存</el-button>
+						</div>
+					</el-form-item>
+				</el-form>
+
+			</el-dialog>
+
+			<el-dialog :visible.sync="reset_key_dialog" title="提示" :modal="false" width="400px" center>
+				<div style="display: flex;justify-content: center;">
+					<div>重置秘钥后需要重新将配置信息填写到监控软件里，否则无法正常使用</div>
+				</div>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="reset_key_dialog = false">取 消</el-button>
+					<el-button type="primary" @click="reset_key">确 定</el-button>
+				</span>
+			</el-dialog>
+			<el-dialog :visible.sync="update_password_dialog" title="修改密码" :modal="false" width="400px"
+				:show-close="false" center>
+				<div style="display: flex;justify-content: center;">
+					<el-input v-model="password"></el-input>
+				</div>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="update_password_dialog = false">取 消</el-button>
+					<el-button type="primary" @click="update_password">确 定</el-button>
+				</span>
+			</el-dialog>
+			<el-dialog :visible.sync="recharge_price_dialog" title="充值余额" :modal="false" width="400px"
+				:show-close="false" center>
+				<div style="display: flex;justify-content: center;">
+					<el-input @keydown="handleInput2" type="number" v-model="recharge_price"></el-input>
+				</div>
+				<span slot="footer" class="dialog-footer">
+					<el-button @click="recharge_price_dialog = false">取 消</el-button>
+					<el-button type="primary" @click="recharge">确 定</el-button>
+				</span>
+			</el-dialog>
+			<el-dialog :visible.sync="update_qr_dialog" title="二维码上传" :modal="false" width="400px" :show-close="false"
+				center>
+				<div style="display: flex;justify-content: center;">
+					<div>目前仅支持上传微信收款码</div>
+				</div>
+				<span slot="footer" class="dialog-footer" style="display: flex;justify-content: center;">
+					<el-button @click="update_qr_dialog = false">取 消</el-button>
+					<el-upload class="upload-demo" ref="upload" :on-success="update_on_success"
+						:action="get_qrdecode_url()" :file-list="fileList" :show-file-list="false">
+						<el-button type="primary" @click="update_qr_dialog = false">确 定</el-button>
+					</el-upload>
+				</span>
+			</el-dialog>
+		</div>
+		<style>
+			.div1 {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.bg-purple {
+				background: #f5f7f9;
+			}
+
+			.date-num {
+				width: 100%;
+				font-size: 20px;
+				text-align: center;
+				color: #303133;
+			}
+
+			.date-title {
+				width: 100%;
+				font-size: 13px;
+				color: #909399;
+				white-space: nowrap;
+			}
+
+			.grid-content {
+				border-radius: 4px;
+				min-height: 50px;
+			}
+
+			.update-userinfo-info-dialog {
+				max-height: 700px;
+				overflow: auto;
+			}
+
+			.reset-key-dialog {}
+		</style>
+	</body>
+	<script>
+		var app = new Vue({
+			el: "#app",
+			data() {
+				return {
+					fileList: [],
+					update_userinfo_info: {
+						password: ""
+					},
+					online_time: 0,
+					over_time: 0,
+					password: "",
+					host:''//您的主机域名
+					recharge_price: null,
+					update_userinfo_info_dialog: false,
+					update_qr_dialog: false,
+					recharge_price_dialog: false,
+					reset_key_dialog: false,
+					update_password_dialog: false,
+					userinfo: {
+						"id": null,
+						"username": "",
+						"key": "",
+						"pname": null,
+						"qq": null,
+						"phonenumber": null,
+						"consumption": 0,
+						"isok": 0,
+						"logondate": "",
+						"invitation_code": "",
+						"money": 0,
+						"vip": 0,
+						"notifyurl": "",
+						"returnurl": "",
+						"rate": 0,
+						"host": '',
+						"session_time_out": 0,
+						"order_time_out": 0
+
+					},
+					orderinfo: {
+						"allnum": 0,
+						"state_1": 0,
+						"state0": 0,
+						"state1": 0,
+						"state2": 0,
+						"money": {
+							"allnum": 0,
+							"state_1": 0,
+							"state0": 0,
+							"state1": 0,
+							"state2": 0
+						}
+					}
+
+				}
+			},
+			mounted() {
+				var that = this;
+
+				var nowtime = new Date();
+				var seconds = (nowtime.getTime() - parseInt(getCookie("sessiontime"))) / 1000;
+				that.online_time = parseInt(seconds / 60); //分钟
+				var sti = setInterval(function() {
+					nowtime = new Date();
+					seconds = (nowtime.getTime() - parseInt(getCookie("sessiontime"))) / 1000;
+					that.online_time = parseInt(seconds / 60); //分钟
+					if (that.online_time == that.userinfo.session_time_out) {
+						clearInterval(sti);
+					}
+
+				}, 60000);
+
+
+				$.ajax({
+					type: "post",
+					url: 'http://' + that.host + '/post_userinfo',
+					data: {
+						session: getCookie("session"),
+					},
+					success: function(res) {
+						if (res.code == 1) {
+							that.userinfo = res.data;
+							that.update_userinfo_info = {
+								"pname": res.data.pname,
+								"qq": res.data.qq,
+								"phonenumber": res.data.phonenumber,
+								"notifyurl": res.data.notifyurl,
+								"returnurl": res.data.returnurl,
+								"order_time_out": res.data.order_time_out
+							}
+						} else {
+							that.$notify.error({
+								title: '初始化失败',
+								message: res.msg
+							});
+							removeCookie("session");
+							removeCookie("sessiontime");
+							window.location = "login.html"
+						}
+					}
+				});
+				$.ajax({
+					type: "post",
+					url: 'http://' + that.host + '/select_order',
+					data: {
+						session: getCookie("session"),
+						type: 5
+					},
+					success: function(res) {
+						if (res.code == 1) {
+							that.orderinfo = res.orderinfo;
+						} else {
+							that.$notify.error({
+								title: '初始化失败',
+								message: res.msg
+							});
+						}
+					}
+				});
+			},
+			methods: {
+				update_on_success(response, file, fileLis) {
+					var that = this;
+					if (response.code == 1) {
+						that.$notify.success({
+							title: '成功',
+							message: "上传成功"
+						});
+					} else {
+						that.$notify.error({
+							title: '保存失败',
+							message: response.msg
+						});
+					}
+				},
+				update_qr_dialog_func() {
+					var that = this;
+					that.update_qr_dialog = true;
+				},
+
+				get_qrdecode_url() {
+					var that = this;
+					return "http://" + that.host + "/qrdecode?session=" + getCookie("session");
+				},
+				bfupdate(file) {
+					var qrcode = new QRCode();
+					var url = null;
+					if (window.createObjectURL != undefined) { // basic
+						url = window.createObjectURL(file);
+					} else if (window.URL != undefined) { // mozilla(firefox)
+						url = window.URL.createObjectURL(file);
+					} else if (window.webkitURL != undefined) { // webkit or chrome
+						url = window.webkitURL.createObjectURL(file);
+					}
+					qrcode.decode(file);
+					qrcode.callback = function(imgMsg) {
+						console.log(imgMsg);
+					};
+
+
+					return false;
+				},
+				handleInput2(e) {
+					// 通过正则过滤小数点后两位
+					e.target.value = (e.target.value.match(/^\d*(\.?\d{0,1})/g)[0]) || null
+
+				},
+				go_orderlist(state) {
+					var that = this;
+					window.location = "orderlist.html?state=" + state;
+				},
+				update_userinfo_info_func() {
+					var that = this;
+					that.update_userinfo_info_dialog = !that.update_userinfo_info_dialog;
+				},
+				userinfo_submit(formName) {
+					var that = this;
+
+					that.$refs[formName].validate((valid) => {
+						if (valid) {
+
+							$.ajax({
+								type: "post",
+								url: 'http://' + that.host + '/update_userinfo_info',
+								data: JSON.stringify({
+									"session": getCookie("session"),
+									"userinfo": {
+										"pname": that.update_userinfo_info.pname,
+										"qq": that.update_userinfo_info.qq,
+										"phonenumber": that.update_userinfo_info.phonenumber,
+										"notifyurl": that.update_userinfo_info.notifyurl,
+										"returnurl": that.update_userinfo_info.returnurl,
+										"order_time_out": that.update_userinfo_info
+											.order_time_out
+									},
+									"type": 1
+								}),
+								contentType: "application/json; charset=UTF-8",
+								processData: false,
+								success: function(res) {
+									if (res.code == 1) {
+										that.$notify.success({
+											title: '保存成功',
+											message: "保存成功"
+										});
+									} else {
+										that.$notify.error({
+											title: '保存失败',
+											message: res.msg
+										});
+									}
+								}
+							});
+						} else {
+							that.$notify.error({
+								title: '保存失败',
+								message: "请确认表单已按要求填写完整"
+							});
+							return false;
+						}
+					});
+
+
+				},
+				reset_key() {
+					var that = this;
+					$.ajax({
+						type: "post",
+						url: 'http://' + that.host + '/update_userinfo_info',
+						data: JSON.stringify({
+							"session": getCookie("session"),
+							"type": 3
+						}),
+						contentType: "application/json; charset=UTF-8",
+						processData: false,
+						success: function(res) {
+							if (res.code == 1) {
+								that.$notify.success({
+									title: '成功',
+									message: res.msg
+								});
+								that.reset_key_dialog = false;
+								setTimeout(function() {
+									window.location.reload();
+								}, 2000);
+							} else {
+								that.$notify.error({
+									title: '失败',
+									message: res.msg
+								});
+								that.reset_key_dialog = false;
+							}
+						}
+					});
+				},
+				update_password() {
+					var that = this;
+					$.ajax({
+						type: "post",
+						url: 'http://' + that.host + '/update_userinfo_info',
+						data: JSON.stringify({
+							"password": that.password,
+							"session": getCookie("session"),
+							"type": 2
+						}),
+						contentType: "application/json; charset=UTF-8",
+						processData: false,
+						success: function(res) {
+							if (res.code == 1) {
+								that.$notify.success({
+									title: '成功',
+									message: res.msg
+								});
+								that.update_password_dialog = false;
+							} else {
+								that.$notify.error({
+									title: '失败',
+									message: res.msg
+								});
+								that.update_password_dialog = false;
+							}
+						}
+					});
+				},
+				recharge() {
+					var that = this;
+					$.ajax({
+						type: "post",
+						url: 'http://' + that.host + '/recharge',
+						data: {
+							mid: that.userinfo.id,
+							price: that.recharge_price,
+							session: getCookie("session")
+						},
+						success: function(res) {
+							if (res.code == 1) {
+								window.location = "pay_index.html?data=" + JSON.stringify(res);
+
+							} else {
+								that.$notify.error({
+									title: '失败',
+									message: res.msg
+								});
+								that.recharge_price_dialog = false;
+							}
+						}
+					});
+				},
+				to_apidoc() {
+					window.location = 'apidoc.html';
+				}
+
+			}
+		});
+	</script>
+</html>

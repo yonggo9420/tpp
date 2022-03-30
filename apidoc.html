@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+	<head>
+		<meta charset="utf-8" />
+		<title>校际通第三方免签支付系统</title> 
+		<script src="js/v2.6.10/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.7/index.js"></script>
+		<link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.7/theme-chalk/index.css" rel="stylesheet"><!-- 
+		<link href="https://cdn.bootcdn.net/ajax/libs/iview/3.5.5-rc.1/styles/iview.min.css" rel="stylesheet">
+		<script src="https://cdn.bootcdn.net/ajax/libs/iview/3.5.5-rc.1/iview.min.js"></script> -->
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+		<script src="js/cookietool.js"></script>
+		<link href="css/colorui.css" rel="stylesheet">
+	</head>
+	<body class="div1" style="background-color: #f5f7f9; height: 100%;overflow: hidden;">
+		<div id="app" style="height: 100%;">
+			<el-card style="height:100%;width:1000px;overflow: auto;" shadow="hover">
+				<div style="text-align:center">
+
+					<div class=" padding-tb-sm radius ">
+						<el-page-header @back="goback()" content="API文档">
+						</el-page-header>
+					</div>
+					<el-card style="height:100%;width:100%;text-align: left;" shadow="hover">
+						<div style="font-size: 25px;">
+							温馨提示:
+						</div>
+					  <div style="font-size: 16px;">
+						  1.sign签名均使用md5的32位小写加密<br />
+						  2.key为身份识别的关键信息，请勿泄露<br />
+						  3.异步通知是在订单收款成功后，将从校际通服务器发送一个包含订单信息等参数的GET请求至商户服务器，商户需要提供商户服务器的服务器地址和端口号给校际通用于通知，商户需要自行编写对应api接收异步通知<br />
+						  <el-button @click="download(1)">下载PC端监控软件</el-button>
+						  <el-button @click="download(2)">下载APP监控软件</el-button>
+					  </div>
+					</el-card>
+						<el-descriptions class="margin-top"  :column="1" border>
+							<template slot="title">
+								<span style="font-size: 25px;font-weight: bold;margin-left: 10px;">创建订单API</span>
+								<el-tag type="danger">POST</el-tag>
+								<el-tag type="info" size="medium">http://122.112.254.40/createOrder </el-tag>
+							</template>
+							<template slot="extra">
+							</template>
+							<el-descriptions-item content-class-name="my-item-none">
+								<template slot="label">
+									请求数据类型:x-www-form-urlencoded或JSON
+								</template>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none"
+								content-class-name="my-item-flex-center">
+								<b>请求参数</b>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none">
+								<el-table :data="createOrderaip.request" border style="width: 100%">
+									<el-table-column prop="name" label="参数名" width="90"></el-table-column>
+									<el-table-column prop="type" label="类型" width="90" ></el-table-column>
+									<el-table-column prop="ismust" label="必填" width="90" :formatter="formatstate" ></el-table-column>
+									<el-table-column prop="examples" label="示例值" width="150"></el-table-column>
+									<el-table-column prop="msg" label="说明" width="720"></el-table-column>
+								</el-table>
+							</el-descriptions-item>
+							<el-descriptions-item content-class-name="my-item-none">
+								<template slot="label">
+									响应数据类型:JSON
+								</template>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none"
+								content-class-name="my-item-flex-center">
+								<b>响应参数</b>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none">
+									<el-table :data="createOrderaip.response" border style="width: 100%">
+										<el-table-column prop="name" label="参数名" width="90"></el-table-column>
+										<el-table-column prop="type" label="类型" width="90" ></el-table-column>
+										<el-table-column prop="ismust" label="必填" width="90" :formatter="formatstate" ></el-table-column>
+										<el-table-column prop="examples" label="示例值" width="150"></el-table-column>
+										<el-table-column prop="msg" label="说明" width="720">
+											 <template slot-scope="scope">
+												 <div v-if="scope.row[`type`]=='对象'">
+													 <el-table :data="createOrderaip.response[scope.$index].msg" border style="width: 100%">
+													 	<el-table-column prop="name" label="参数名" width="120"></el-table-column>
+													 	<el-table-column prop="type" label="类型" width="90" ></el-table-column>
+													 	<el-table-column prop="ismust" label="必填" width="90" :formatter="formatstate" ></el-table-column>
+													 	<el-table-column prop="examples" label="示例值" width="150"></el-table-column>
+													 	<el-table-column prop="msg" label="说明" width="720"></el-table-column>
+													 </el-table>
+												 </div>
+												 <div v-else>{{scope.row[`msg`]}}</div>
+											    </template>
+										</el-table-column>
+									</el-table>
+							</el-descriptions-item>
+						</el-descriptions>
+						
+						
+						<el-descriptions class="margin-top"  :column="1" border>
+							<template slot="title">
+								<span style="font-size: 25px;font-weight: bold;margin-left: 10px;">查询订单状态API</span>
+								<el-tag type="danger">POST</el-tag>
+								<el-tag type="info" size="medium">http://122.112.254.40/checkOrder </el-tag>
+							</template>
+							<template slot="extra">
+							</template>
+							<el-descriptions-item content-class-name="my-item-none">
+								<template slot="label">
+									请求数据类型:x-www-form-urlencoded或JSON
+								</template>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none"
+								content-class-name="my-item-flex-center">
+								<b>请求参数</b>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none">
+								<el-table :data="checkOrderapi.request" border style="width: 100%">
+									<el-table-column prop="name" label="参数名" width="90"></el-table-column>
+									<el-table-column prop="type" label="类型" width="90" ></el-table-column>
+									<el-table-column prop="ismust" label="必填" width="90" :formatter="formatstate" ></el-table-column>
+									<el-table-column prop="examples" label="示例值" width="150"></el-table-column>
+									<el-table-column prop="msg" label="说明" width="720"></el-table-column>
+								</el-table>
+							</el-descriptions-item>
+							<el-descriptions-item content-class-name="my-item-none">
+								<template slot="label">
+									响应数据类型:JSON
+								</template>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none"
+								content-class-name="my-item-flex-center">
+								<b>响应参数</b>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none">
+									<el-table :data="checkOrderapi.response" border style="width: 100%">
+										<el-table-column prop="name" label="参数名" width="90"></el-table-column>
+										<el-table-column prop="type" label="类型" width="90" ></el-table-column>
+										<el-table-column prop="ismust" label="必填" width="90" :formatter="formatstate" ></el-table-column>
+										<el-table-column prop="examples" label="示例值" width="150"></el-table-column>
+										<el-table-column prop="msg" label="说明" width="720"></el-table-column>
+									</el-table>
+							</el-descriptions-item>
+						</el-descriptions>
+						
+						<el-descriptions class="margin-top"  :column="1" border>
+							<template slot="title">
+								<span style="font-size: 25px;font-weight: bold;">异步通知回调参数说明</span>
+								<el-tag type="success">GTE</el-tag>
+							</template>
+							
+							<el-descriptions-item content-class-name="my-item-none">
+								<template slot="label">
+									请求数据类型:x-www-form-urlencoded
+								</template>
+							</el-descriptions-item>
+							<el-descriptions-item content-class-name="my-item-none">
+								<template slot="label">
+									当系统收到用户收款后，将会向您后台设定的异步通知地址发送GET请求，通知您的服务端订单完成收款若您使用的是ishtml=1则在支付完成后会携带参数跳转到您的同步通知接口，若使用ishtml=0则只有异步通知
+								</template>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none"
+								content-class-name="my-item-flex-center">
+								<b>请求参数</b>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none">
+								<el-table :data="notifyapi.request" border style="width: 100%">
+									<el-table-column prop="name" label="参数名" width="90"></el-table-column>
+									<el-table-column prop="type" label="类型" width="90" ></el-table-column>
+									<el-table-column prop="ismust" label="必填" width="90" :formatter="formatstate" ></el-table-column>
+									<el-table-column prop="examples" label="示例值" width="150"></el-table-column>
+									<el-table-column prop="msg" label="说明" width="720"></el-table-column>
+								</el-table>
+							</el-descriptions-item>
+							<el-descriptions-item content-class-name="my-item-none">
+								<template slot="label">
+									响应数据类型:JSON
+								</template>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none"
+								content-class-name="my-item-flex-center">
+								<b>响应参数</b>
+							</el-descriptions-item>
+							<el-descriptions-item label-class-name="my-item-none">
+									<el-table :data="notifyapi.response" border style="width: 100%">
+										<el-table-column prop="name" label="参数名" width="90"></el-table-column>
+										<el-table-column prop="type" label="类型" width="90" ></el-table-column>
+										<el-table-column prop="ismust" label="必填" width="90" :formatter="formatstate" ></el-table-column>
+										<el-table-column prop="examples" label="示例值" width="150"></el-table-column>
+										<el-table-column prop="msg" label="说明" width="720"></el-table-column>
+									</el-table>
+							</el-descriptions-item>
+						</el-descriptions>
+
+
+			</el-card>
+		</div>
+
+		</div>
+		<style>
+			.div1 {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+
+			.bg-purple {
+				background: #f5f7f9;
+			}
+
+			.orderinfo-dialog {
+				min-height: 700px;
+			}
+
+			.date-num {
+				font-size: 25px;
+				color: #303133;
+			}
+
+			.my-item-none {
+				display: none;
+			}
+
+			.my-item-flex-center {
+				display: flex;
+				justify-content: center;
+			}
+
+			.date-title {
+				font-size: 13px;
+				color: #909399;
+				white-space: nowrap;
+			}
+
+			.grid-content {
+				border-radius: 4px;
+				min-height: 50px;
+			}
+		</style>
+	</body>
+	<script>
+		var app = new Vue({
+			el: "#app",
+			data() {
+				return {
+					
+					createOrderaip: {
+						"request":[
+							{
+								"name":"mid",
+								"type":"整数",
+								"ismust":1,
+								"examples":"1",
+								"msg":"商户ID"
+							},
+							{
+								"name":"payid",
+								"type":"字符串",
+								"ismust":1,
+								"examples":"1648306925",
+								"msg":"商户订单号，可以是时间戳，不可重复"
+							},
+							{
+								"name":"price",
+								"type":"浮点数",
+								"ismust":1,
+								"examples":"0.01",
+								"msg":"订单价格"
+							},
+							{
+								"name":"sign",
+								"type":"字符串",
+								"ismust":1,
+								"examples":"1648306925",
+								"msg":"签名,加密方法md5(mid+payid+param+price+key)"
+							},
+							{
+								"name":"param",
+								"type":"字符串",
+								"ismust":0,
+								"examples":"pay_notify",
+								"msg":"自定义参数，传输参数，将会原样返回到异步和同步通知接口"
+							},
+							{
+								"name":"ishtml",
+								"type":"整数",
+								"ismust":0,
+								"examples":"0",
+								"msg":"传入1则自动跳转到支付页面，不传或“0”返回创建结果的json数据"
+							},
+							{
+								"name":"notifyurl",
+								"type":"字符串",
+								"ismust":0,
+								"examples":"127.0.0.1:80",
+								"msg":"传入则设置该订单的异步通知接口为该参数，不传或传空则使用后台设置的接口"
+							},
+							{
+								"name":"returnurl",
+								"type":"字符串",
+								"ismust":0,
+								"examples":"127.0.0.1:8080",
+								"msg":"传入则设置该订单的同步跳转接口为该参数，不传或传空则使用后台设置的接口"
+							}
+						],
+						response:[
+							{
+								name:'code',
+								type:'整数',
+								ismust:1,
+								examples:'1',
+								msg:'状态码(1为创建成功，其他为失败，具体查看msg)'
+							},
+							{
+								name:'msg',
+								type:'字符串',
+								ismust:1,
+								examples:'创建订单成功',
+								msg:'api调用结果说明'
+							},{
+								name:'data',
+								type:'对象',
+								ismust:0,
+								examples:"",
+								msg:[
+									{
+										name:'mid',
+										type:'整数',
+										ismust:1,
+										examples:'1',
+										msg:'商户ID'
+									},
+									{
+										name:'payid',
+										type:'字符串',
+										ismust:1,
+										examples:'20220328112219',
+										msg:'商户订单号'
+									},{
+										name:'orderid',
+										type:'字符串',
+										ismust:1,
+										examples:"123",
+										msg:"云端订单号，可用于查询订单是否支付成功"
+									},{
+										name:'paytype',
+										type:'整数',
+										ismust:1,
+										examples:"1",
+										msg:"微信支付为1 支付宝支付为2"
+									},{
+										name:'price',
+										type:'浮点数',
+										ismust:1,
+										examples:"100.00",
+										msg:"订单金额"
+									},{
+										name:'reallyprice',
+										type:'浮点数',
+										ismust:1,
+										examples:"100.00",
+										msg:"实际需付金额"
+									},{
+										name:'payurl',
+										type:'字符串',
+										ismust:1,
+										examples:"wxp://f2f0CYCNxDDXkQOo9XHfOF9HiWiEyajgwsttcsvxjJRdZ_U",
+										msg:"支付二维码内容"
+									},{
+										name:'order_time_out',
+										type:'整数',
+										ismust:1,
+										examples:"5",
+										msg:"订单有效时间（分钟）"
+									},{
+										name:'date',
+										type:'整数',
+										ismust:1,
+										examples:"1648437739945",
+										msg:"订单创建时间时间戳（13位）"
+									}
+								]
+							}
+						]
+						},
+						checkOrderapi:{
+							request:[
+								{
+									"name":"orderid",
+									"type":"字符串",
+									"ismust":1,
+									"examples":"20220326232724",
+									"msg":"云端订单号，创建订单返回的"
+								}
+							],
+							response:[
+								{
+									"name":"code",
+									"type":"整数",
+									"ismust":1,
+									"examples":"1",
+									"msg":"返回代码（1：订单已被支付，-1：支付失败或还未支付，具体查看msg字段）"
+								},
+								{
+									"name":"msg",
+									"type":"字符串",
+									"ismust":1,
+									"examples":"成功",
+									"msg":"调用结果说明"
+								},
+								{
+									"name":"data",
+									"type":"字符串",
+									"ismust":1,
+									"examples":'"http://域名/?payId=1547130880571&param=vone666&type=2&price=0.1&reallyPrice=0.1&sign=c79f041bd5bc47d73bc19dc8406c9843"',
+									"msg":"如果code为-1，则data为null，否则为该订单支付完成后的跳转地址（带回调参数） "
+								}
+							]
+						},
+						notifyapi:{
+							request:[
+							{
+								name:'mid',
+								type:'整数',
+								ismust:1,
+								examples:'1',
+								msg:'商户ID'
+							},
+							{
+								name:'payid',
+								type:'字符串',
+								ismust:1,
+								examples:'20220328112219',
+								msg:'商户订单号'
+							},{
+								name:'param',
+								type:'字符串',
+								ismust:1,
+								examples:"pay_notify",
+								msg:"创建订单的时候传入的参数"
+							},{
+								name:'price',
+								type:'浮点数',
+								ismust:1,
+								examples:"100.00",
+								msg:"订单金额"
+							},{
+								name:'reallyprice',
+								type:'浮点数',
+								ismust:1,
+								examples:"100.00",
+								msg:"实际需付金额"
+							},{
+								name:'sign',
+								type:'字符串',
+								ismust:1,
+								examples:"d9868cd80f65c2ef52d6090518830753",
+								msg:"校验签名，计算方式 = md5(mid+payid + param+ price + reallyprice + key)"
+							}
+							],
+							response:[
+								{
+									"name":"code",
+									"type":"整数",
+									"ismust":1,
+									"examples":"1",
+									"msg":"返回代码（1：成功收到通知，-1：失败"
+								},
+								{
+									"name":"msg",
+									"type":"字符串",
+									"ismust":1,
+									"examples":"失败",
+									"msg":"您需要返回的信息"
+								}
+							]
+						},
+					headerstr: "",
+					lablestyle: {
+						"display": "none"
+					},
+					show: false,
+					host: "122.112.254.40"
+				}
+			},
+			mounted() {
+				var that = this;
+
+
+			},
+			methods: {
+	formatstate(row, column, cellValue, index){
+							var str = "";
+							if(cellValue==1){
+								str="必需";
+							}else{
+								str="非必需";
+							}
+							return str;
+						},
+				goback() {
+					window.history.back();
+				},
+				download(type){
+					if(type==1){
+						window.open("https://oss-928vip-cn.oss-cn-beijing.aliyuncs.com/pay/demo/%E7%A0%81%E6%94%AF%E4%BB%98%E5%BE%AE%E4%BF%A1QQ%E6%94%AF%E4%BB%98%E5%AE%9DPC%E4%B8%89%E5%90%88%E4%B8%80.zip");
+					}else{
+						window.open("https://oss-928vip-cn.oss-cn-beijing.aliyuncs.com/pay/demo/%E7%A0%81%E6%94%AF%E4%BB%98%E7%9B%91%E6%8E%A7%E7%AB%AF.apk");
+					}
+				}
+
+			}
+		});
+	</script>
+</html>

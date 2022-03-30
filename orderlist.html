@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+	<head>
+		<meta charset="utf-8" />
+		<title>校际通第三方免签支付系统</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>
+		<script src="js/v2.6.10/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.7/index.js"></script>
+		<link href="https://cdn.bootcdn.net/ajax/libs/element-ui/2.15.7/theme-chalk/index.css" rel="stylesheet">
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+		<script src="js/cookietool.js"></script>
+		<link href="css/colorui.css" rel="stylesheet" >
+	</head>
+		<body class="div1"  style="background-color: #f5f7f9; height: 100%">
+		<div  id="app">
+				 <el-card style="width:auto;min-height: 800px;width: 400px;" shadow="hover">
+				        <div style="text-align:center" >
+							
+							<div class=" padding-tb-sm radius ">
+								<el-page-header @back="goback()" :content="headerstr">
+								</el-page-header>
+							</div>
+							<div>
+								  <el-descriptions class="margin-top" title="订单信息" :column="1"  border>
+								    <template slot="extra">
+								      <el-dropdown>
+								        <el-button size="small" round type="primary">
+								          更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+								        </el-button>
+								        <el-dropdown-menu slot="dropdown">
+								          <el-dropdown-item  @click.native="clearorder">删除所有过期订单</el-dropdown-item>
+								        </el-dropdown-menu>
+								      </el-dropdown>
+								    </template>
+									
+								    
+								  </el-descriptions>
+							
+							  <el-table
+							    :data="orderdata"
+							    border
+								
+							    style="width: 100%;overflow: auto;max-height: 600px;">
+							    <el-table-column
+							      prop="payid"
+							      label="商户订单号"
+							      width="150">
+							    </el-table-column>
+							    <el-table-column
+							      prop="price"
+							      label="金额(元)"
+							      width="110"
+								  :sortable="true"
+								  :sort-orders="['ascending', 'descending', null]"
+								  >
+							    </el-table-column>
+							    <el-table-column
+							      prop="state"
+							      label="状态"
+							      width="100"
+								  :sortable="true"
+								  :sort-orders="['ascending', 'descending', null]"
+								  :formatter="formatstate"
+								  >
+							    </el-table-column>
+							    <el-table-column
+							           label="操作"
+							           width="70">
+								  <template slot-scope="scope">
+								          <el-button @click="handleClick(scope.row)" type="text" size="small">查看</el-button>
+								        </template>
+								      </el-table-column>
+							    </el-table-column>
+							  </el-table>
+							</div>
+							
+				        </div>
+				    </el-card>
+					<el-dialog :visible.sync="show" custom-class="orderinfo-dialog" :modal="false" width="400px" :show-close="false">
+						<div>
+							  <el-descriptions class="margin-top" title="订单信息" :column="1"  border>
+							    <template slot="extra">
+							      <el-dropdown>
+							        <el-button size="small" round type="primary">
+							          更多操作<i class="el-icon-arrow-down el-icon--right"></i>
+							        </el-button>
+							        <el-dropdown-menu slot="dropdown">
+							          <el-dropdown-item  @click.native="order_notify(show_orderinfo.id)">补单</el-dropdown-item>
+							          <el-dropdown-item>删除订单</el-dropdown-item>
+							        </el-dropdown-menu>
+							      </el-dropdown>
+							    </template>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        订单id
+							      </template>
+							     {{show_orderinfo.id}}
+							    </el-descriptions-item>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        云端订单号
+							      </template>
+							     {{show_orderinfo.orderid}}
+							    </el-descriptions-item>
+								<el-descriptions-item>
+								  <template slot="label">
+								    商户订单号
+								  </template>
+								 {{show_orderinfo.payid}}
+								</el-descriptions-item>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        携带参数
+							      </template>
+							     <div style="text-overflow: ellipsis;overflow: hidden;white-space: nowrap;">{{show_orderinfo.param}}</div>
+							    </el-descriptions-item>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        订单金额
+							      </template>
+							     {{show_orderinfo.price}}
+							    </el-descriptions-item>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        实际需收金额
+							      </template>
+							     {{show_orderinfo.reallyprice}}
+							    </el-descriptions-item>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        手续费
+							      </template>
+							     {{show_orderinfo.service_charge}}
+							    </el-descriptions-item>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        收款方式
+							      </template>
+								  <div v-if="show_orderinfo.type==1">微信</div>
+							    </el-descriptions-item>
+							    <el-descriptions-item>
+							      <template slot="label">
+							        订单状态
+							      </template>
+								  <div v-if="show_orderinfo.state==1">交易成功</div>
+								  <div v-else-if="show_orderinfo.state==-1">交易失败或订单过期</div>
+								  <div v-else-if="show_orderinfo.state==2">交易成功但通知失败</div>
+								  <div v-else-if="show_orderinfo.state==0">待支付</div>
+							    </el-descriptions-item>
+							  </el-descriptions>
+						
+						</div>
+					</el-dialog>
+			</div>
+	<style>
+	.div1{
+			display:flex;
+			justify-content:center;
+			align-items: center;
+	}
+	
+	  .bg-purple {
+	    background: #f5f7f9;
+	  }
+	  .orderinfo-dialog {
+	    min-height: 700px;
+	  }
+	  .date-num{
+		  font-size: 25px;
+		  color: #303133;
+	  }
+	  .date-title{
+		  font-size: 13px;
+		  color: #909399;
+		  white-space: nowrap;
+	  }
+	  .grid-content {
+	    border-radius: 4px;
+	    min-height: 50px;
+	  }
+	</style>
+	</body>
+		<script>
+			var app = new Vue({
+			    el: "#app",
+				data() {
+					return {
+						orderdata:[],
+						headerstr:"",
+						show_orderinfo:{
+							
+						},
+						show:false,
+						host:''//您的主机域名
+					}
+				},
+				mounted() {
+					var that = this;
+					var thisURL = document.URL;  
+					var getval =thisURL.split('?')[1];
+					var orderstate= getval.split("=")[1];
+					if(orderstate==1){
+						that.headerstr="总订单";
+					}else if(orderstate==2){
+							that.headerstr="成功订单";
+					}else if(orderstate==3){
+							that.headerstr="失败订单";
+					}
+					$.ajax({
+					            type: "post",
+					            url: 'http://'+that.host+'/select_order',
+								data: {
+								 session:getCookie("session"),
+								 type:parseInt(orderstate)
+					            },
+					            success: function (res) {
+									if(res.code==1){
+										that.orderdata=res.orderdata;
+									}else{
+										   that.$notify.error({
+												title: '查询失败',
+												message: res.msg
+											});
+											removeCookie("session");
+											removeCookie("sessiontime");
+											window.location="login.html";
+									}
+							}
+					    });
+				},
+				methods:{
+					formatstate(row, column, cellValue, index){
+						var str = "";
+						if(cellValue==1){
+							str="交易成功";
+						}else if(cellValue==-1){
+							str="交易失败或过期";
+						}else if(cellValue==2){
+							str="交易成功但通知失败";
+						}else if(cellValue==0){
+							str="待支付";
+						}
+						return str;
+					},
+					handleClick(info){
+						var that=this;
+						that.show_orderinfo=info;
+						that.show=true;
+					},
+					goback(){
+						window.location="main.html";
+					},
+					clearorder(){
+						var that=this;
+						$.ajax({
+					            type: "post",
+					            url: 'http://'+that.host+'/clearorder',
+								data: {
+								 session:getCookie("session")
+					            },
+					            success: function (res) {
+									if(res.code==1){
+											   that.$notify.success({
+													title: '成功'
+												});
+												setTimeout(function(){
+													window.location.reload();
+												},1000)
+									}else{
+										   that.$notify.error({
+												title: '失败',
+												message: res.msg
+											});
+									}
+							}
+					    });
+					},
+					order_notify(orderid){
+						var that=this;
+						$.ajax({
+					            type: "post",
+					            url: 'http://'+that.host+'/order_notify',
+								data: {
+								 session:getCookie("session"),
+								 orderid:orderid
+					            },
+					            success: function (res) {
+									if(res.code==1){
+											   that.$notify.success({
+													title: '成功'
+												});
+												setTimeout(function(){
+													window.location.reload();
+												},1000)
+									}else{
+										   that.$notify.error({
+												title: '失败',
+												message: res.msg
+											});
+									}
+							}
+					    });
+					}
+					
+					
+				}
+			});
+		</script>
+</html>

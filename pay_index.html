@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>
+		<title>主页</title>
+		<script src="../js/v2.6.10/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/layui/2.6.8/layui.js"></script>
+		<link href="https://cdn.bootcdn.net/ajax/libs/iview/3.5.5-rc.1/styles/iview.min.css" rel="stylesheet">
+		<script src="https://cdn.bootcdn.net/ajax/libs/iview/3.5.5-rc.1/iview.min.js"></script>
+		<script src="../js/cookietool.js"></script>
+		<link href="../css/colorui.css" rel="stylesheet" >
+<link rel="stylesheet" href="https://cdn.staticfile.org/font-awesome/4.7.0/css/font-awesome.css">
+	</head>
+	<body class="div1" style="height: 100%">
+		<div  id="app">
+			 <Card style="min-height: 700px;width: 500px;">
+			        <div style="text-align:center">
+						
+							<Affix>
+						       <div class="padding-lr-sm padding-tb-sm bg-white radius shadow-lg">
+						       	<h1 class="text-center text-bold text-lg margin-tb-sm">校际通支付系统</h1><span><var>1.3</var></span>
+						       	</div>
+						    </Affix>
+							<div  style="display: flex;justify-content: center;align-items: center;width: 100%;">
+								
+								<Card style="width:100% ;" dis-hover>
+								<div style="font-size: 20px;color: green;"><i class="fa fa-weixin" style="font-size:20px;color:green;"></i>微信支付</div> 
+								</Card>	
+							</div>
+						<div v-if="state==0"  class="padding-lr-sm padding-tb-xl bg-white" style="display: flex;justify-content: center;align-items: center;align-items: flex-start; overflow:auto;height: 600px;">
+							
+							<!-- <Spin size="large" fix></Spin> -->
+							<div  style="display: flex;justify-content: center;width: 100%;">
+								
+							<!-- <div  style="display: flex;justify-content: center;"> -->
+								<Card style="width:100% ;">
+									<b style="font-size: 25px;font-weight: 900;">扫码后需支付￥<span style="font-size: 30px;color: red;">{{data.data.reallyprice}}</span>元</b>
+									<div>
+										<img width="200px" height="200px" :src="'https://payapi.fenxiaovip.cn/qrcode.php?text='+data.data.payurl" />
+									</div>
+									<b style=" font-size: 15px;font-weight: 900;background-color: #00b1e4; border-radius: 5px;color: white; ">使用微信APP付款</b><br/>
+										<b style="font-size: 15px;color: red;">为了您正常收货请务必如实付款{{data.data.reallyprice}}元</b><br/>
+										<b style="font-size: 15px;color: red;">原订单金额可能会与实际需支付金额有出入，请正常付款即可</b><br/>
+										<b style="font-size: 15px;color: red;">请截图二维码打开APP扫码支付</b>
+										<div style="color: red;font-size: 20px; " v-html="str"></div>
+								</Card>	
+							</div>
+						</div>
+						
+						<div v-if="state==1"  class="padding-lr-sm padding-tb-xl bg-white" style="display: flex;justify-content: center;align-items: center;align-items: flex-start; overflow:auto;height: 600px;">
+							
+							<!-- <Spin size="large" fix></Spin> -->
+							<div  style="display: flex;justify-content: center;width: 100%;">
+								
+							<!-- <div  style="display: flex;justify-content: center;"> -->
+								<Card style="width:100% ;">
+									<div>
+										<i class="fa fa-check-circle" style="font-size:100px;color:green;"></i><br />
+										<b style="color: green;font-size: 35px;">您已支付成功</b>
+									</div>
+									<Card style="width:100% ;" dis-hover>
+										<b slot="title" style="color: #555555;font-size: 25px;">订单信息</b>
+									<div>
+										<b style="color: #555555;font-size: 15px;">订单金额:{{data.data.price}}元</b><br />
+										<b style="color: #555555;font-size: 15px;">实际付款:{{data.data.reallyprice}}元</b><br />
+										<b style="color: #555555;font-size: 15px;">订单id:{{data.data.orderid}}</b>
+									</div>
+								</Card>	
+								</Card>	
+							</div>
+						</div>
+						<div v-if="state==-1"  class="padding-lr-sm padding-tb-xl bg-white" style="display: flex;justify-content: center;align-items: center;align-items: flex-start; overflow:auto;height: 600px;">
+							
+							<!-- <Spin size="large" fix></Spin> -->
+							<div  style="display: flex;justify-content: center;width: 100%;">
+								
+							<!-- <div  style="display: flex;justify-content: center;"> -->
+								<Card style="width:100% ;">
+									<div>
+										<i class="fa fa-times-circle" style="font-size:100px;color:red;"></i><br />
+										<b style="color: red;font-size: 35px;">订单已过期</b>
+									</div>
+									<Card style="width:100% ;" dis-hover>
+										<b slot="title" style="color: #555555;font-size: 25px;">订单信息</b>
+									<div>
+										<b style="color: #555555;font-size: 15px;">订单金额:{{data.data.price}}元</b><br />
+										<b style="color: #555555;font-size: 15px;">订单id:{{data.data.orderid}}</b>
+									</div>
+								</Card>	
+								</Card>	
+							</div>
+						</div>
+						
+						<div>
+							
+							<div style="font-size: 20px;font-weight: bold;">
+								<div>状态:<b v-if="data.data.state==0">待支付</b><b v-if="data.data.state==1">支付成功</b><b v-if="data.data.state==2">支付完成但通知失败</b><b v-if="data.data.state==-1">订单过期</b></div>
+							</div>
+						</div>
+			        </div>
+			    </Card>
+		</div>
+	</body>
+	<style>
+	.div1{
+			display:flex;
+			justify-content:center;
+			align-items: center;
+	}
+	
+	</style>
+	<script>
+layui.use(['form', 'jquery'],
+function() {
+    var form = layui.form;
+    window.jQuery = window.$ = layui.jquery;
+    var app = new Vue({
+        el: "#app",
+        data: {
+			str:"",
+			orderstate:true,//订单过期状态true未过期
+			state:0,
+			host:''//您的主机域名
+			data:{
+				  "code": 0,
+				  "msg": "",
+				  "data": {
+					"mid": "",
+					"payid": "",
+					"orderid": "",
+					"paytype": 0,
+					"price": 0,
+					"reallyprice": 0,
+					"payurl": "",
+					"isauto": 0,
+					"state": 0,
+					"timeout": 0,
+					"date": 0
+				  }
+				}
+        },
+        mounted() {
+            var that = this;
+			var thisURL = document.URL;  
+			var getval =thisURL.split('?')[1];	
+			if(!getval){
+					that.$Notice.success({
+								 	title: '失败',
+								 	duration:0,
+								 	desc:"必要参数不全"
+								 });
+								 return;
+			}
+			var data= getval.split("=")[1];
+			if(!data){
+					that.$Notice.success({
+									title: '失败',
+									duration:0,
+									desc:"必要参数不全"
+								 });
+								 return;
+			}
+			that.data=JSON.parse(decodeURI(data));
+			that.data.data.state=0;
+			var sti= setInterval(function() {
+			            //创建目标日期
+						var nowtime=new Date();
+						var seconds=((parseInt(that.data.data.date/1000)+that.data.data.order_time_out*60)*1000-nowtime.getTime()) /1000;
+			            var h = parseInt(seconds / 3600 % 24);//小时
+			            var m = parseInt(seconds / 60 % 60);//分钟
+			            var s = parseInt(seconds % 60);//秒
+			            that.str=`订单还有<b style="background-color: #38d232;color: white;">${h} 小时${m} 分钟${s} 秒</b>`;	
+						if(seconds<=0){//订单过期
+			            that.str='<b style="background-color: red;color: white;">过期订单已过期，请您返回网站重新发起支付</b>';
+						that.orderstate=false;
+						that.state=-1;
+						that.data.data.state=-1;
+							clearInterval(sti);
+							
+						}
+						if(that.state==1){
+							clearInterval(sti);
+						}
+			        }, 1000);
+					var sti2= setInterval(function() {
+						if(that.orderstate!=false){
+							$.ajax({
+									type: "post",
+									url: 'http://'+that.host+'/checkOrder',
+									data: {
+										orderid:that.data.data.orderid
+										},
+									dataType: "json",
+									success: function(res) {
+										if(res.code==1){ 
+											that.$Notice.success({
+														 	title: '支付成功',
+														 	duration:0,
+														 	desc:res.data
+														 });
+												if(res.data){
+													window.location=res.data;
+												}
+											that.data.data.state=1;
+											that.state=1;
+											clearInterval(sti);
+											clearInterval(sti2);
+											}
+											}
+											});
+						}else{
+							clearInterval(sti2);
+						}
+			        }, 7000);
+        },
+        methods: {
+			
+		}
+			
+
+    })
+
+});
+	</script>
+</html>
+

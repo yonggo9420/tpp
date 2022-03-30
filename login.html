@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html style="height: 100%;">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0;"/>
+		<title>登录</title>
+		<script src="js/v2.6.10/vue.js" type="text/javascript" charset="utf-8"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/layui/2.6.8/layui.js"></script>
+		<link href="https://cdn.bootcdn.net/ajax/libs/iview/3.5.5-rc.1/styles/iview.min.css" rel="stylesheet">
+		<script src="https://cdn.bootcdn.net/ajax/libs/iview/3.5.5-rc.1/iview.min.js"></script>
+		<script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.6.0/jquery.js"></script>
+		<script src="js/cookietool.js"></script>
+		<link href="css/colorui.css" rel="stylesheet" >
+	</head>
+	<body class="div1"  style="background-color: #f5f7f9; height: 100%">
+		<div  id="app">
+			 <Card style="width:auto">
+			        <div style="text-align:center">
+						
+						<div class="padding-lr-sm padding-tb-sm bg-white radius shadow-lg">
+							<h1 class="text-center text-bold text-lg margin-tb-sm">校际通第三方免签支付系统</h1>
+							</div>
+						<div  class="padding-lr-sm padding-tb-xl margin-tb-sm bg-white radius shadow-lg">
+							<div style="display: flex;justify-content: center;">
+								<i-input v-model="username" placeholder="请输入账号" style="width: 300px"></i-input>
+							</div>
+							<div style="display: flex;justify-content: center; margin-top: 20px;">
+								<i-input v-model="password" placeholder="请输入密码" style="width: 300px"></i-input>
+							</div>
+							<div v-if="islogon" style="display: flex;justify-content: center; margin-top: 20px;">
+								<i-input v-model="invitation_code_up" placeholder="请输入上级邀请码" style="width: 300px"></i-input>
+							</div>
+							<div style="margin-top: 20px;">
+								<div >
+									<i-button v-show="!islogon" type="primary" @click="login()" >登录</i-button>
+									<i-button v-show="islogon" type="primary" @click="logon()" >注册</i-button>
+								</div>
+								<div style="float: right;">
+									    <Dropdown @on-click="Dropdown">
+									        <a href="javascript:void(0)">
+									            更多
+									            <Icon type="arrow-down-b"></Icon>
+									        </a>
+									        <Dropdown-menu slot="list">
+									            <Dropdown-item v-show="!islogon" name="logon">注册</Dropdown-item>
+									            <Dropdown-item v-show="islogon" name="login">登录</Dropdown-item>
+									            <Dropdown-item name="forget">忘记密码</Dropdown-item>
+									        </Dropdown-menu>
+									    </Dropdown>
+								</div>
+							</div>
+							
+						</div>
+			        </div>
+			    </Card>
+				
+		</div>
+	</body>
+	<style>
+	.div1{
+			display:flex;
+			justify-content:center;
+			align-items: center;
+	}
+	</style>
+	<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+			username:null,
+			password:null,
+			invitation_code_up:null,
+			islogon:false,
+			host:''//您的主机域名
+        },
+        mounted() {
+            var that = this;
+        },
+        methods: {
+            login() {//登录
+                var that = this;
+				$.ajax({
+				            type: "post",
+				            url: 'http://'+that.host+'/login',
+				            data: JSON.stringify({
+							 username:that.username,
+							 password:that.password,
+							 login_type:2
+				            }),
+							contentType:"application/json; charset=UTF-8",
+							processData:false,
+				            success: function (res) {
+								if(res.code==1){
+									//跳转到主页
+									that.$Notice.success({
+									    title: '成功',
+									    desc: res.msg
+									});
+									setTimeout(function(){
+										window.location="main.html";
+									},2000);
+									setCookie("session",res.session,3600);
+									setCookie("sessiontime",res.sessiontime,3600);
+								}else{
+									   that.$Notice.error({
+											title: '失败',
+											desc: res.msg
+										});
+								}
+						}
+				    });
+				
+				
+            },
+            logon() {//注册
+                var that = this;
+				$.ajax({
+				            type: "post",
+				            url: 'http://'+that.host+'/logon',
+				            data: JSON.stringify({
+							 username:that.username,
+							 password:that.password,
+							 invitation_code_up:that.invitation_code_up
+				            }),
+							contentType:"application/json; charset=UTF-8",
+							processData:false,
+				            success: function (res) {
+							 if(res.code==1){
+								//跳转到主页
+								that.$Notice.success({
+									title: '成功',
+									desc: res.msg
+								});
+									setTimeout(function(){
+										window.location="main.html";
+									},2000);
+								setCookie("session",res.session,3600);
+								setCookie("sessiontime",res.sessiontime,3600);
+							 }else{
+								   that.$Notice.error({
+										title: '失败',
+										desc: res.msg
+									});
+							 }
+						 
+						}
+				    });
+            },
+            forget() {
+                var that = this;
+				
+            },
+            Dropdown(name) {
+                var that = this;
+				if(name=="logon"||name=="login"){
+					that.username=null;
+					that.password=null;
+					that.invitation_code_up=null;
+					that.islogon=!that.islogon;
+				}
+				if(name=="forget"){
+					
+				}
+            }
+        }
+
+    });
+
+	</script>
+</html>
+
