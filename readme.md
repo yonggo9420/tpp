@@ -1,26 +1,9 @@
 
 ---
 title: 校际通第三方支付系统 v1.0.0
-language_tabs:
-  - shell: Shell
-  - http: HTTP
-  - javascript: JavaScript
-  - ruby: Ruby
-  - python: Python
-  - php: PHP
-  - java: Java
-  - go: Go
-toc_footers: []
-includes: []
-search: true
-code_clipboard: true
-highlight_theme: darkula
-headingLevel: 2
-generator: "@tarslib/widdershins v4.0.5"
-
 ---
 
-# 校际通第三方支付系统
+# 校际通第三方支付系统API
 
 > v1.0.0
 
@@ -982,5 +965,3 @@ GET /callback
 |---|---|
 |code|1|
 |code|-1|
-
-# 数据模型
